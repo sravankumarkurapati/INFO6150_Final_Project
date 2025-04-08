@@ -1,0 +1,12 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+}
+.card {
+  border-radius: 12px;
+}
+.navbar-brand {
+  font-weight: bold;
+}
+footer {
+  font-size: 0.9rem;
+}
