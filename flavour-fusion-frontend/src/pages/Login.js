@@ -67,7 +67,7 @@ const Login = () => {
         }}
       >
         <h3 className="text-center mb-4" style={{ color: '#ff5e62' }}>
-          Flavour Fusion Login
+          Flavour Fusion 
         </h3>
         <form onSubmit={handleLogin}>
           <div className="mb-3">

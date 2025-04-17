@@ -12,7 +12,7 @@ const DeliveryDashboard = () => {
   useEffect(() => {
     fetchAssignedOrders();
   }, []);
-
+ 
   const fetchAssignedOrders = async () => {
     try {
       const res = await axios.get(`/orders/delivery/${user._id}`, {
