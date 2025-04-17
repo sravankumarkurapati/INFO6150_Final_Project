@@ -49,11 +49,35 @@ const AdminDashboard = () => {
   const fetchCommissions = async () => {
     try {
       const res = await axios.get('/orders/admin/restaurant-commissions');
-      setCommissions(res.data);
+  
+      const fixedRates = {
+        "Nové": 20,
+        "Bowl O' China": 23,
+        "Haveli": 33,
+        "Levant": 22,
+        "Mexa Rosa": 16
+      };
+  
+      const enriched = res.data.map(item => {
+        const rate = fixedRates[item.restaurantName] ?? 10; // Default to 10%
+        const totalCommission =
+          item.totalRevenue != null
+            ? (item.totalRevenue * rate) / 100
+            : null;
+  
+        return {
+          ...item,
+          commissionRate: rate,
+          totalCommission
+        };
+      });
+  
+      setCommissions(enriched);
     } catch (err) {
-      console.error('Commission fetch error:', err);
+      console.error('Commission fetch error:', err?.response?.data || err.message);
     }
   };
+  
 
   useEffect(() => {
     fetchData();
@@ -173,24 +197,7 @@ const AdminDashboard = () => {
             </tbody>
           </table>
 
-{restaurants.length > pageSize && (
-  <div className="d-flex justify-content-center mt-3">
-    {Array.from({ length: Math.ceil(restaurants.length / pageSize) }, (_, index) => (
-      <Button
-        key={index}
-        variant={restPage === index + 1 ? 'primary' : 'light'}
-        onClick={() => setRestPage(index + 1)}
-        className="mx-1"
-      >
-        {index + 1}
-      </Button>
-    ))}
-  </div>
-)}
-
-
-
-{users.length > pageSize && (
+          {activeTab === 'users' && users.length > pageSize && (
   <div className="d-flex justify-content-center mt-3">
     {Array.from({ length: Math.ceil(users.length / pageSize) }, (_, index) => (
       <Button
@@ -248,7 +255,25 @@ const AdminDashboard = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+
+            {activeTab === 'restaurants' && restaurants.length > pageSize && (
+  <div className="d-flex justify-content-center mt-3">
+    {Array.from({ length: Math.ceil(restaurants.length / pageSize) }, (_, index) => (
+      <Button
+        key={index}
+        variant={restPage === index + 1 ? 'primary' : 'light'}
+        onClick={() => setRestPage(index + 1)}
+        className="mx-1"
+      >
+        {index + 1}
+      </Button>
+    ))}
+  </div>
+)}
+
+
+
         </Tab>
 
         <Tab eventKey="commissions" title="Commissions">
@@ -264,18 +289,58 @@ const AdminDashboard = () => {
       </tr>
     </thead>
     <tbody>
-      {commissions.slice((commPage - 1) * pageSize, commPage * pageSize).map((row, idx) => (
-        <tr key={idx}>
-          <td>{row.restaurantName || 'N/A'}</td>
-          <td>{row.totalRevenue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0'}</td>
-          <td>{row.commissionRate || 10}</td>
-          <td>{row.totalCommission?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0'}</td>
-          <td>{row.orderCount || 0}</td>
-        </tr>
-      ))}
+      {commissions
+        .slice((commPage - 1) * pageSize, commPage * pageSize)
+        .map((row, idx) => (
+          <tr key={idx}>
+            <td>{row.restaurantName || 'N/A'}</td>
+
+            <td>
+              {row.totalRevenue != null
+                ? row.totalRevenue.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                  })
+                : '—'}
+            </td>
+
+            <td>
+              {row.commissionRate != null
+                ? `${row.commissionRate}%`
+                : '—'}
+            </td>
+
+            <td>
+              {row.commissionRate != null && row.totalRevenue != null
+                ? (row.totalRevenue * row.commissionRate / 100).toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                  })
+                : '—'}
+            </td>
+
+            <td>{row.orderCount ?? 0}</td>
+          </tr>
+        ))}
     </tbody>
   </table>
+
+  {activeTab === 'commissions' && commissions.length > pageSize && (
+  <div className="d-flex justify-content-center mt-3">
+    {Array.from({ length: Math.ceil(commissions.length / pageSize) }, (_, index) => (
+      <Button
+        key={index}
+        variant={commPage === index + 1 ? 'primary' : 'light'}
+        onClick={() => setCommPage(index + 1)}
+        className="mx-1"
+      >
+        {index + 1}
+      </Button>
+    ))}
+    </div>
+  )}
 </Tab>
+
 
       </Tabs>
     </div>

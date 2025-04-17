@@ -168,7 +168,7 @@ const CustomerDashboard = () => {
             <Row className="mt-3">
               <div className="d-flex justify-content-between align-items-center">
                 <h4 className="text-muted">Menu</h4>
-                <Button variant="outline-primary" onClick={() => setView("home")}>← Back</Button>
+                <Button variant="outline-primary" onClick={() => setView("home")}>← Back to Restaurants</Button>
               </div>
               <Col md={8}>
                 <Row>

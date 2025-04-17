@@ -12,17 +12,21 @@ import Footer from './components/Footer';
 
 const App = () => {
   const user = JSON.parse(localStorage.getItem('user'));
-  const role = user?.role;
+  const role = user?.type; // ✅ FIXED: from .role to .type
 
   return (
     <Router>
-      <div className="app-container"> {/* ✅ This makes background image visible */}
+      <div className="app-container">
         <Navbar userType={role} />
         <Routes>
           <Route path="/" element={role ? <Navigate to={`/${role}/dashboard`} /> : <Navigate to="/login/customer" />} />
           <Route path="/login" element={<Navigate to="/login/customer" />} />
-          <Route path="/login/:role" element={<Login />} />
+
+          {/* ✅ FIXED: force Login component to re-render using key */}
+          <Route path="/login/:role" element={<Login key={window.location.pathname} />} />
+
           <Route path="/signup" element={<Signup />} />
+
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/restaurant/dashboard" element={<ProtectedRoute allowedRoles={['restaurant']}><RestaurantDashboard /></ProtectedRoute>} />
           <Route path="/customer/dashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>} />
