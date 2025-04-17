@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "Flavour Fusion API - Updated",
+    "_postman_id": "d040878d-79e8-44df-926a-c62d6c5adbf3",
+    "description": "Updated API requests including restaurant registration with image upload",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Register User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/users/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ravi Kumar\",\n  \"email\": \"ravi@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"customer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2. Login User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"ravi@example.com\",\n  \"password\": \"password123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "3. Upload Profile Picture",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/upload",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "upload"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "value": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Admin Registers Restaurant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <ADMIN_TOKEN>",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/restaurants",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "restaurants"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "name",
+              "type": "text",
+              "value": "Tandoori Nights"
+            },
+            {
+              "key": "category",
+              "type": "text",
+              "value": "Indian"
+            },
+            {
+              "key": "commissionRate",
+              "type": "text",
+              "value": "10"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "value": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. View All Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/restaurants",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "restaurants"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Restaurant Adds Menu Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <RESTAURANT_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "items"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Paneer Butter Masala\",\n  \"price\": 250,\n  \"category\": \"Main Course\",\n  \"restaurant\": \"<RESTAURANT_ID>\",\n  \"image\": \"/uploads/paneer.png\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. Get Items by Restaurant",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/items/<RESTAURANT_ID>",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "items",
+            "<RESTAURANT_ID>"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Customer Places Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <CUSTOMER_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restaurant\": \"<RESTAURANT_ID>\",\n  \"items\": [\n    {\n      \"item\": \"<ITEM_ID>\",\n      \"quantity\": 2\n    }\n  ],\n  \"totalAmount\": 500\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "9. Get Orders by Role",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10. Update Order Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <RESTAURANT_OR_DELIVERY_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/orders/<ORDER_ID>",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "<ORDER_ID>"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"delivering\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "11. Admin Views Commissions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <ADMIN_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/commissions/admin",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "commissions",
+            "admin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "12. Restaurant Views Commission Breakdown",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <RESTAURANT_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/commissions/restaurant/<RESTAURANT_ID>",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "commissions",
+            "restaurant",
+            "<RESTAURANT_ID>"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5001"
+    }
+  ]
+}

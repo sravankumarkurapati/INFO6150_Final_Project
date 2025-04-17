@@ -1,25 +1,67 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from '../axiosInstance';
+import { Table, Button } from 'react-bootstrap';
 
 const DeliveryDashboard = () => {
-  const deliveries = [
-    { id: 1, address: '123 Main St', status: 'Pending' },
-    { id: 2, address: '45 Ocean Dr', status: 'Delivered' }
-  ];
+  const user = JSON.parse(localStorage.getItem('user'));
+  const token = user?.token;
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    fetchAssignedOrders();
+  }, []);
+
+  const fetchAssignedOrders = async () => {
+    try {
+      const res = await axios.get(`/orders/delivery/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOrders(res.data);
+    } catch (err) {
+      console.error('Failed to fetch delivery orders:', err.response?.data || err.message);
+    }
+  };
+
+  const markCompleted = async (orderId) => {
+    try {
+      await axios.put(`/orders/${orderId}/status`, { status: 'completed' }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchAssignedOrders();
+    } catch (err) {
+      console.error('Failed to update order:', err.message);
+    }
+  };
 
   return (
     <div className="container mt-4">
       <h2>Delivery Dashboard</h2>
-      <ul className="list-group mt-3">
-        {deliveries.map(delivery => (
-          <li key={delivery.id} className="list-group-item d-flex justify-content-between align-items-center">
-            {delivery.address}
-            <span className={`badge ${delivery.status === 'Delivered' ? 'bg-success' : 'bg-secondary'}`}>
-              {delivery.status}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map(order => (
+            <tr key={order._id}>
+              <td>{order._id}</td>
+              <td>{order.customer?.fullName || 'N/A'}</td>
+              <td>{order.customer?.address || 'N/A'}</td>
+              <td>{order.status}</td>
+              <td>
+                {order.status !== 'completed' && (
+                  <Button size="sm" onClick={() => markCompleted(order._id)}>Mark Completed</Button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </div>
   );
 };
