@@ -1,17 +1,14 @@
+
 import React from 'react';
-import './Footer.css'; // Make sure this is imported if you're using custom styles
 
 const Footer = () => {
   return (
-    <footer className="footer-full bg-black text-white py-4 mt-5">
-      <div className="text-center">
-        <h5 className="mb-2">🍴 Flavour Fusion</h5>
-        <p className="small mb-1">Delivering taste to your doorstep</p>
-        <p className="small mb-0">📞 Contact: +1 (123) 456-7890</p>
-        <p className="small mb-3">📧 Email: support@flavourfusion.com</p>
-        <div className="text-muted small">
-          &copy; {new Date().getFullYear()} Flavour Fusion · All rights reserved.
-        </div>
+    <footer className="bg-dark text-white mt-5 py-4">
+      <div className="container text-center">
+        <h5 className="mb-2 fw-bold" style={{ color: '#ff9966' }}>Flavour Fusion</h5>
+        <p className="mb-1">Delivering Taste to Your Doorstep</p>
+        <p className="small mb-1">📧 support@flavourfusion.com | 📞 +1 (555) 123-4567</p>
+        <p className="small mb-0">© {new Date().getFullYear()} Flavour Fusion. All rights reserved.</p>
       </div>
     </footer>
   );

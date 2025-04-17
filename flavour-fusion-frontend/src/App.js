@@ -8,6 +8,7 @@ import RestaurantDashboard from './pages/RestaurantDashboard';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import Footer from './components/Footer';
 
 const App = () => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/customer/dashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>} />
         <Route path="/delivery/dashboard" element={<ProtectedRoute allowedRoles={['delivery']}><DeliveryDashboard /></ProtectedRoute>} />
       </Routes>
+      <Footer/>
     </Router>
   );
 };

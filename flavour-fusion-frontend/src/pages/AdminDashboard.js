@@ -11,6 +11,18 @@ const AdminDashboard = () => {
   const [restaurants, setRestaurants] = useState([]);
   const [commissions, setCommissions] = useState([]);
 
+  const [userPage, setUserPage] = useState(1);
+  const [restPage, setRestPage] = useState(1);
+  const [commPage, setCommPage] = useState(1);
+
+  const pageSize = 5;
+
+      
+  // Pagination
+    
+  
+  
+
   const [showUserModal, setShowUserModal] = useState(false);
   const [showRestModal, setShowRestModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -116,6 +128,7 @@ const AdminDashboard = () => {
         )}
       </div>
 
+      <div className="container-fluid mt-4">
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-4">
         <Tab eventKey="users" title="Users">
           <div className="text-end mb-3">
@@ -133,7 +146,7 @@ const AdminDashboard = () => {
               <tr><th>Image</th><th>Name</th><th>Email</th><th>Role</th><th>Address</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {users.slice((userPage - 1) * pageSize, userPage * pageSize).map(user => (
                 <tr key={user._id}>
                   <td>
                     {user.profileImage ? (
@@ -159,6 +172,40 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
+
+{restaurants.length > pageSize && (
+  <div className="d-flex justify-content-center mt-3">
+    {Array.from({ length: Math.ceil(restaurants.length / pageSize) }, (_, index) => (
+      <Button
+        key={index}
+        variant={restPage === index + 1 ? 'primary' : 'light'}
+        onClick={() => setRestPage(index + 1)}
+        className="mx-1"
+      >
+        {index + 1}
+      </Button>
+    ))}
+  </div>
+)}
+
+
+
+{users.length > pageSize && (
+  <div className="d-flex justify-content-center mt-3">
+    {Array.from({ length: Math.ceil(users.length / pageSize) }, (_, index) => (
+      <Button
+        key={index}
+        variant={userPage === index + 1 ? 'primary' : 'light'}
+        onClick={() => setUserPage(index + 1)}
+        className="mx-1"
+      >
+        {index + 1}
+      </Button>
+    ))}
+  </div>
+)}
+
+
         </Tab>
 
         <Tab eventKey="restaurants" title="Restaurants">
@@ -177,7 +224,7 @@ const AdminDashboard = () => {
               <tr><th>Image</th><th>Name</th><th>Category</th><th>Commission</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              {restaurants.map(r => (
+              {restaurants.slice((restPage - 1) * pageSize, restPage * pageSize).map(r => (
                 <tr key={r._id}>
                   <td>
                     {r.image ? (
@@ -207,22 +254,22 @@ const AdminDashboard = () => {
         <Tab eventKey="commissions" title="Commissions">
   <h5 className="mt-3 mb-2">Restaurant Commissions Summary</h5>
   <table className="table table-bordered text-center">
-    <thead className="table-info">
+    <thead className="table-warning">
       <tr>
         <th>Restaurant</th>
-        <th>Revenue (₹)</th>
+        <th>Revenue (USD)</th>
         <th>Commission Rate (%)</th>
-        <th>Commission (₹)</th>
+        <th>Commission (USD)</th>
         <th>Orders</th>
       </tr>
     </thead>
     <tbody>
-      {commissions.map((row, idx) => (
+      {commissions.slice((commPage - 1) * pageSize, commPage * pageSize).map((row, idx) => (
         <tr key={idx}>
           <td>{row.restaurantName || 'N/A'}</td>
-          <td>{row.totalRevenue || 0}</td>
+          <td>{row.totalRevenue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0'}</td>
           <td>{row.commissionRate || 10}</td>
-          <td>{row.totalCommission || 0}</td>
+          <td>{row.totalCommission?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0'}</td>
           <td>{row.orderCount || 0}</td>
         </tr>
       ))}
@@ -231,6 +278,7 @@ const AdminDashboard = () => {
 </Tab>
 
       </Tabs>
+    </div>
 
       {/* User Modal */}
       <Modal key={editMode ? selectedUser?._id : 'newUser'} show={showUserModal} onHide={() => setShowUserModal(false)}>
