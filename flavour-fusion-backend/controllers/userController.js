@@ -77,21 +77,32 @@ exports.createUser = async (req, res) => {
 // 📝 UPDATE user (admin only)
 exports.updateUser = async (req, res) => {
   try {
-    const updates = req.body;
+    const userId = req.params.id;
+    const updates = { ...req.body };
 
+    // If a new password is provided, hash it
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    } else {
+      delete updates.password; // Avoid resetting password to undefined
+    }
+
+    // If new image uploaded, update image path
     if (req.file) {
       updates.profileImage = `/uploads/${req.file.filename}`;
     }
 
-    // Optional: hash password if included
-    if (updates.password) {
-      updates.password = await bcrypt.hash(updates.password, 10);
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-    res.status(200).json({ message: 'User updated', user: updatedUser });
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to update user', error: err });
+    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Update User Error:', error);
+    res.status(500).json({ message: 'Failed to update user', error: error.message });
   }
 };
 

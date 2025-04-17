@@ -107,6 +107,23 @@ const Signup = () => {
             />
             <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
           </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>User Role</Form.Label>
+            <Form.Control
+              as="select"
+              value={form.type}
+              onChange={(e) => handleChange('type', e.target.value)}
+              isInvalid={!!errors.type}
+              required
+            >
+              <option value="">Select Role</option>
+              <option value="customer">Customer</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="delivery">Delivery</option>
+            </Form.Control>
+            <Form.Control.Feedback type="invalid">{errors.type}</Form.Control.Feedback>
+          </Form.Group>
+
 
           <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>
@@ -131,6 +148,12 @@ const Signup = () => {
           <Button type="submit" className="w-100 mt-2" variant="danger">
             Sign Up
           </Button>
+        
+          <div className="text-center mt-3">
+            <span>Already have an account? </span>
+            <a href="/login" className="text-primary text-decoration-underline">Login here</a>
+          </div>
+
         </Form>
       </Card>
     </div>

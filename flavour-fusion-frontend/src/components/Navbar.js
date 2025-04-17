@@ -1,9 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { logoutUser } from '../utils';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ userType }) => {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
 
   return (
     <nav
@@ -18,41 +23,18 @@ const Navbar = ({ userType }) => {
           🍽️ FlavourFusion
         </Link>
 
-        <div className="collapse navbar-collapse">
+        {/* NAV LINKS (optional) */}
+        {/* <div className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto">
-            {userType === 'admin' && (
-              <li className="nav-item">
-                <Link className="nav-link text-white fw-semibold" to="/admin/dashboard">
-                  Admin Panel
-                </Link>
-              </li>
-            )}
-            {userType === 'restaurant' && (
-              <li className="nav-item">
-                <Link className="nav-link text-white fw-semibold" to="/restaurant/dashboard">
-                  Restaurant Panel
-                </Link>
-              </li>
-            )}
-            {userType === 'customer' && (
-              <li className="nav-item">
-                <Link className="nav-link text-white fw-semibold" to="/customer/dashboard">
-                  Customer Panel
-                </Link>
-              </li>
-            )}
-            {userType === 'delivery' && (
-              <li className="nav-item">
-                <Link className="nav-link text-white fw-semibold" to="/delivery/dashboard">
-                  Delivery Panel
-                </Link>
-              </li>
-            )}
+            ...dashboard links based on userType...
           </ul>
+        </div> */}
 
+        {/* ✅ Logout on far right */}
+        <div className="ms-auto">
           {user && (
             <button
-              onClick={logoutUser}
+              onClick={handleLogout}
               className="btn btn-outline-light fw-bold"
               style={{ borderRadius: '25px' }}
             >

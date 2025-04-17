@@ -19,9 +19,11 @@ const RestaurantDashboard = () => {
   const [completedOrders, setCompletedOrders] = useState([]);
   const [deliveryPeople, setDeliveryPeople] = useState([]);
   const [form, setForm] = useState({ name: '', price: '', quantity: '', image: null });
+  const [formError, setFormError] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [stats, setStats] = useState({ totalRevenue: 0, totalCommission: 0, totalOrders: 0 });
   const [key, setKey] = useState('performance');
+  const baseUrl = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     const fetchRestaurantId = async () => {
@@ -135,9 +137,35 @@ const RestaurantDashboard = () => {
     fontWeight: 'bold'
   };
 
+  
+  const handleItemSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.price || !form.quantity || !form.image) {
+      setFormError("Please fill in all fields including image.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('price', form.price);
+    formData.append('quantity', form.quantity);
+    formData.append('restaurant', restaurantId);
+    formData.append('image', form.image);
+
+    await axios.post('/items', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    setShowAddModal(false);
+    fetchItems();
+  };
+
+
   const orderTable = (title, data, showActions = false, showDeliveryPerson = false) => (
     <div className="mt-4">
-      <h5 style={headerStyle}>{title}</h5>
+      <h5 className="bg-warning text-white p-2 rounded">{title}</h5>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -145,17 +173,37 @@ const RestaurantDashboard = () => {
             <th>Customer</th>
             <th>Status</th>
             <th>Total</th>
+            <th>Items</th>
             {showDeliveryPerson ? <th>Delivery Person</th> : <th>Delivery</th>}
             {showActions && <th>Action</th>}
           </tr>
         </thead>
         <tbody>
           {data.map(order => (
-            <tr key={order._id}>
+            <tr key={order._id} className={
+  order.status === 'pending' ? 'table-warning' :
+  order.status === 'preparing' ? 'table-info' :
+  order.status === 'delivering' ? 'table-primary' :
+  order.status === 'completed' ? 'table-success' :
+  ''
+}>
               <td>{order._id}</td>
               <td>{order.customer?.fullName || 'N/A'}</td>
               <td>{order.status}</td>
-              <td>{order.totalAmount}</td>
+              <td>{order.totalAmount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+              <td>
+  {title === 'New Orders' ? (
+    <span className="text-muted">Hidden</span>
+  ) : (
+    <ul className="mb-0 ps-3">
+      {order.items.map((i, idx) => (
+        <li key={idx}>
+          {i.item?.name || 'Unnamed'} × {i.quantity}
+        </li>
+      ))}
+    </ul>
+  )}
+</td>
               <td>
                 {(order.status === 'preparing' || order.status === 'delivering') ? (
                   <Form.Select
@@ -189,7 +237,19 @@ const RestaurantDashboard = () => {
 
   return (
     <div className="container py-4">
-      <div style={headerStyle}>Restaurant Dashboard</div>
+      <div className="d-flex align-items-center justify-content-between mb-4">
+  <h2 className="text-white py-2 px-4 rounded" style={{ background: 'linear-gradient(to right, #ff9966, #ff5e62)' }}>
+    Restaurant Dashboard
+  </h2>
+  {user?.fullName && (
+    <div className="d-flex align-items-center">
+      {user.profileImage && (
+      <img src={`${baseUrl}${user.profileImage}`} alt="Profile" width={40} height={40} className="me-2 rounded-circle" />
+    )}
+    <span className="fw-bold">{user.fullName}</span>
+    </div>
+  )}
+</div>
       <h4 className="text-center mb-4 text-muted">Welcome, {restaurantName}</h4>
 
       <Tabs activeKey={key} onSelect={setKey} className="mb-4 justify-content-center">
@@ -197,8 +257,8 @@ const RestaurantDashboard = () => {
           <Card className="mb-4 p-3 shadow-sm">
             <h5 className="mb-3">Restaurant Performance</h5>
             <p><strong>Total Orders:</strong> {stats.totalOrders}</p>
-            <p><strong>Total Revenue:</strong> ₹{stats.totalRevenue}</p>
-            <p><strong>Commission to Flavour Fusion:</strong> ₹{stats.totalCommission}</p>
+            <p><strong>Total Revenue:</strong> {stats.totalRevenue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+            <p><strong>Commission to Flavour Fusion:</strong> {stats.totalCommission?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
           </Card>
         </Tab>
 
@@ -210,24 +270,32 @@ const RestaurantDashboard = () => {
           <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
             <Modal.Header closeButton><Modal.Title>Add Item</Modal.Title></Modal.Header>
             <Modal.Body>
-              <Form>
+              <Form onSubmit={handleItemSubmit}>
+                {formError && <div className="alert alert-danger">{formError}</div>}
                 <Form.Group><Form.Label>Name</Form.Label><Form.Control type="text" onChange={(e) => setForm({ ...form, name: e.target.value })} /></Form.Group>
                 <Form.Group><Form.Label>Price</Form.Label><Form.Control type="number" onChange={(e) => setForm({ ...form, price: e.target.value })} /></Form.Group>
                 <Form.Group><Form.Label>Quantity</Form.Label><Form.Control type="number" onChange={(e) => setForm({ ...form, quantity: e.target.value })} /></Form.Group>
                 <Form.Group><Form.Label>Image</Form.Label><Form.Control type="file" onChange={(e) => setForm({ ...form, image: e.target.files[0] })} /></Form.Group>
-                <Button className="mt-3" onClick={handleAddItem}>Submit</Button>
+                <Button className="mt-3" type="submit">Submit</Button>
               </Form>
             </Modal.Body>
           </Modal>
 
           <Table striped bordered hover className="mt-4">
             <thead>
-              <tr><th>Name</th><th>Price</th><th>Qty</th><th>Update</th></tr>
+              <tr><th>Image</th><th>Name</th><th>Price</th><th>Qty</th><th>Update</th></tr>
             </thead>
             <tbody>
               {items.map(item => (
                 <tr key={item._id}>
-                  <td>{item.name}</td>
+                  <td>
+      {item.image ? (
+        <img src={`${baseUrl}${item.image}`} alt="Item" width="50" height="40" style={{ objectFit: "cover", borderRadius: "8px" }} />
+      ) : (
+        <span className="text-muted small">No image</span>
+      )}
+    </td>
+<td>{item.name}</td>
                   <td>{item.price}</td>
                   <td>{item.quantity}</td>
                   <td className="d-flex">
