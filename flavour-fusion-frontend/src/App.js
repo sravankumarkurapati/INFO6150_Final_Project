@@ -19,7 +19,7 @@ const App = () => {
       <div className="app-container">
         <Navbar userType={role} />
         <Routes>
-          <Route path="/" element={role ? <Navigate to={`/${role}/dashboard`} /> : <Navigate to="/login/customer" />} />
+          <Route path="/" element={role ? <Navigate to={`/${role}/dashboard`} /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Navigate to="/login" />} />
 
           {/* ✅ FIXED: force Login component to re-render using key  */}
