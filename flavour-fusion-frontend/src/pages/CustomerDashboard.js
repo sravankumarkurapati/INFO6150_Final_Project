@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from '../axiosInstance';
 import { Card, Button, Row, Col, Modal, Form, Alert, Pagination, Tabs, Tab } from 'react-bootstrap';
@@ -53,10 +54,9 @@ const CustomerDashboard = () => {
 
   const addToCart = (item) => {
     if (cart.length > 0 && cart[0].restaurant !== selectedRestaurant) {
-      alert("You can only add items from one restaurant at a time. Please complete or clear your existing cart before continuing.");
+      alert("You can only add items from one restaurant at a time.");
       return;
     }
-
     const exists = cart.find(c => c.item._id === item._id);
     if (exists) {
       setCart(cart.map(c => c.item._id === item._id ? { ...c, quantity: c.quantity + 1 } : c));
@@ -74,6 +74,7 @@ const CustomerDashboard = () => {
     setCart([]);
     setSelectedRestaurant(null);
     setItems([]);
+    setView("home");
   };
 
   const placeOrderAfterPayment = async () => {
@@ -83,20 +84,17 @@ const CustomerDashboard = () => {
         items: cart.map(c => ({ item: c.item._id, quantity: c.quantity })),
         totalAmount: cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0)
       };
-
       const res = await axios.post('/orders', payload, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-
       await axios.put(`/orders/${res.data._id}/completePayment`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-
       setMessage("✅ Payment successful and order placed!");
       clearCart();
       fetchOrders();
       setShowStripeModal(false);
-    } catch (err) {
+    } catch {
       setMessage("❌ Order failed after payment");
     }
   };
@@ -106,80 +104,39 @@ const CustomerDashboard = () => {
     return items.slice(start, start + perPage);
   };
 
-  const inProgressOrders = orders.filter(o => o.status !== 'delivered');
-  const pastOrders = orders.filter(o => o.status === 'delivered');
+  const inProgressOrders = orders.filter(o => o.status !== 'completed');
+  const pastOrders = orders.filter(o => o.status === 'completed');
 
   return (
     <div className="container mt-4">
       <div className="d-flex align-items-center justify-content-between mb-4">
-  <h2 className="text-white py-2 px-4 rounded" style={{ background: 'linear-gradient(to right, #ff9966, #ff5e62)' }}>
-    Customer Dashboard
-  </h2>
-  {user?.fullName && (
-    <div className="d-flex align-items-center">
-      {user?.profileImage && (
-      <img src={`${process.env.REACT_APP_BASE_URL}${user.profileImage}`} alt="Profile"
-           width={40} height={40} className="me-2 rounded-circle" />
-    )}
-    <span className="fw-bold">{user.fullName}</span>
-    </div>
-  )}
-</div>
+        <h2 className="text-white py-2 px-4 rounded" style={{ background: 'linear-gradient(to right, #ff9966, #ff5e62)' }}>
+          Customer Dashboard
+        </h2>
+        {user?.fullName && (
+          <div className="d-flex align-items-center">
+            {user?.profileImage && (
+              <img src={`${process.env.REACT_APP_BASE_URL}${user.profileImage}`} alt="Profile"
+                width={40} height={40} className="me-2 rounded-circle" />
+            )}
+            <span className="fw-bold">{user.fullName}</span>
+          </div>
+        )}
+      </div>
+
       {message && <Alert variant="success">{message}</Alert>}
 
       <Tabs defaultActiveKey="restaurants" className="mb-3">
         <Tab eventKey="restaurants" title="Browse Restaurants">
-        {view === "home" && (
-          <>
-          <h4 className="mt-4">Restaurants</h4>
-          <Row>
-            {paginate(restaurants, currentRestaurantPage, restaurantsPerPage).map(r => (
-              <Col md={4} key={r._id} className="mb-3">
-                <Card style={{ height: '100%' }}>
-                  <Card.Img
-                    variant="top"
-                    src={`${process.env.REACT_APP_BASE_URL}${r.image}`}
-                    style={{
-                      height: '200px',
-                      width: '100%',
-                      objectFit: 'cover',
-                      display: 'block'
-                    }}
-                  />
-                  <Card.Body>
-                    <Card.Title>{r.name}</Card.Title>
-                    <Card.Text>{r.category}</Card.Text>
-                    <Button onClick={() => fetchItems(r._id)}>Explore Menu</Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-
-          <Pagination>
-            {[...Array(Math.ceil(restaurants.length / restaurantsPerPage)).keys()].map(num => (
-              <Pagination.Item key={num + 1} active={num + 1 === currentRestaurantPage} onClick={() => setCurrentRestaurantPage(num + 1)}>
-                {num + 1}
-              </Pagination.Item>
-            ))}
-          </Pagination>
-          </>
-        )}
-
-        {view === "menu" && (
-          <Row className="mt-3">
-            <div className="d-flex justify-content-between align-items-center">
-              <h4 className="text-muted">Menu</h4>
-              <Button variant="outline-primary" onClick={() => setView("home")}>← Back to Restaurants</Button>
-            </div>
-            <Col md={8}>
+          {view === "home" && (
+            <>
               <Row>
-                {paginate(items, currentItemPage, itemsPerPage).map(item => (
-                  <Col md={6} key={item._id} className="mb-3">
-                    <Card>
+                {paginate(restaurants, currentRestaurantPage, restaurantsPerPage).map(r => (
+                  <Col md={4} key={r._id} className="mb-3">
+                    <Card style={{ height: '100%' }}>
                       <Card.Img
                         variant="top"
-                        src={`${process.env.REACT_APP_BASE_URL}${item.image}`}
+                        src={`${process.env.REACT_APP_BASE_URL}${r.image}`}
                         style={{
                           height: '180px',
                           width: '100%',
@@ -189,107 +146,46 @@ const CustomerDashboard = () => {
                         }}
                       />
                       <Card.Body>
-                        <Card.Title>{item.name}</Card.Title>
-                        <Card.Text>{item.price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</Card.Text>
-                        <Button onClick={() => addToCart(item)}>Add to Cart</Button>
+                        <Card.Title>{r.name}</Card.Title>
+                        <Card.Text>{r.category}</Card.Text>
+                        <Button onClick={() => fetchItems(r._id)}>Explore Menu</Button>
                       </Card.Body>
                     </Card>
                   </Col>
                 ))}
               </Row>
               <Pagination>
-                {[...Array(Math.ceil(items.length / itemsPerPage)).keys()].map(num => (
-                  <Pagination.Item key={num + 1} active={num + 1 === currentItemPage} onClick={() => setCurrentItemPage(num + 1)}>
+                {[...Array(Math.ceil(restaurants.length / restaurantsPerPage)).keys()].map(num => (
+                  <Pagination.Item key={num + 1} active={num + 1 === currentRestaurantPage} onClick={() => setCurrentRestaurantPage(num + 1)}>
                     {num + 1}
                   </Pagination.Item>
                 ))}
               </Pagination>
-            </Col>
-            <Col md={4}>
-              {cart.length > 0 && (
-                <div className="bg-light p-3 rounded shadow sticky-top">
-                  <h5>Your Cart</h5>
-                  <table className="table small">
-                    <thead>
-                      <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-                    </thead>
-                    <tbody>
-                      {cart.map(c => (
-                        <tr key={c.item._id}>
-                          <td>{c.item.name}</td>
-                          <td>
-                            <input type="number" min="1" value={c.quantity} onChange={(e) => updateQty(c.item._id, e.target.value)} style={{ width: '50px' }} />
-                          </td>
-                          <td>{(c.item.price * c.quantity)?.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td colSpan="2" className="text-end"><strong>Total</strong></td>
-                        <td>{cart.reduce((sum, i) => sum + i.item.price * i.quantity, 0)?.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <Button variant="success" onClick={() => setShowStripeModal(true)} className="w-100">Pay & Place Order</Button>
-                  <Button variant="secondary" onClick={clearCart} className="w-100 mt-2">Clear Cart</Button>
-                </div>
-              )}
-            </Col>
-          </Row>
-        )}
-    
-          <h4 className="mt-4">Restaurants</h4>
-          <Row>
-            {paginate(restaurants, currentRestaurantPage, restaurantsPerPage).map(r => (
-              <Col md={4} key={r._id} className="mb-3">
-                <Card style={{ height: '100%' }}>
-                <Card.Img
-  variant="top"
-  src={`${process.env.REACT_APP_BASE_URL}${r.image}`}
-  style={{
-    height: '200px',
-    width: '100%',
-    objectFit: 'cover',
-    display: 'block'
-  }}
-/>
+            </>
+          )}
 
-                  <Card.Body>
-                    <Card.Title>{r.name}</Card.Title>
-                    <Card.Text>{r.category}</Card.Text>
-                    <Button onClick={() => fetchItems(r._id)}>Explore Menu</Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-
-          <Pagination>
-            {[...Array(Math.ceil(restaurants.length / restaurantsPerPage)).keys()].map(num => (
-              <Pagination.Item key={num + 1} active={num + 1 === currentRestaurantPage} onClick={() => setCurrentRestaurantPage(num + 1)}>
-                {num + 1}
-              </Pagination.Item>
-            ))}
-          </Pagination>
-
-          {items.length > 0 && (
-            <Row className="mt-5">
+          {view === "menu" && (
+            <Row className="mt-3">
+              <div className="d-flex justify-content-between align-items-center">
+                <h4 className="text-muted">Menu</h4>
+                <Button variant="outline-primary" onClick={() => setView("home")}>← Back</Button>
+              </div>
               <Col md={8}>
-                <h4>Menu</h4>
                 <Row>
                   {paginate(items, currentItemPage, itemsPerPage).map(item => (
                     <Col md={6} key={item._id} className="mb-3">
                       <Card>
-                      <Card.Img
-  variant="top"
-  src={`${process.env.REACT_APP_BASE_URL}${item.image}`}
-  style={{
-    height: '160px',
-    width: '100%',
-    objectFit: 'cover',
-    display: 'block'
-  }}
-/>
-
+                        <Card.Img
+                          variant="top"
+                          src={`${process.env.REACT_APP_BASE_URL}${item.image}`}
+                          style={{
+                            height: '180px',
+                            width: '100%',
+                            objectFit: 'contain',
+                            padding: '10px',
+                            backgroundColor: '#f9f9f9'
+                          }}
+                        />
                         <Card.Body>
                           <Card.Title>{item.name}</Card.Title>
                           <Card.Text>{item.price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</Card.Text>
@@ -299,30 +195,18 @@ const CustomerDashboard = () => {
                     </Col>
                   ))}
                 </Row>
-                <Pagination>
-                  {[...Array(Math.ceil(items.length / itemsPerPage)).keys()].map(num => (
-                    <Pagination.Item key={num + 1} active={num + 1 === currentItemPage} onClick={() => setCurrentItemPage(num + 1)}>
-                      {num + 1}
-                    </Pagination.Item>
-                  ))}
-                </Pagination>
               </Col>
-
               <Col md={4}>
                 {cart.length > 0 && (
                   <div className="bg-light p-3 rounded shadow sticky-top">
                     <h5>Your Cart</h5>
                     <table className="table small">
-                      <thead>
-                        <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-                      </thead>
+                      <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
                       <tbody>
                         {cart.map(c => (
                           <tr key={c.item._id}>
                             <td>{c.item.name}</td>
-                            <td>
-                              <input type="number" min="1" value={c.quantity} onChange={(e) => updateQty(c.item._id, e.target.value)} style={{ width: '50px' }} />
-                            </td>
+                            <td><input type="number" min="1" value={c.quantity} onChange={(e) => updateQty(c.item._id, e.target.value)} style={{ width: '50px' }} /></td>
                             <td>{(c.item.price * c.quantity)?.toLocaleString("en-US", { style: "currency", currency: "USD" })}</td>
                           </tr>
                         ))}
@@ -391,9 +275,7 @@ const CustomerDashboard = () => {
       </Tabs>
 
       <Modal show={showStripeModal} onHide={() => setShowStripeModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Payment</Modal.Title>
-        </Modal.Header>
+        <Modal.Header closeButton><Modal.Title>Payment</Modal.Title></Modal.Header>
         <Modal.Body>
           <Elements stripe={stripePromise}>
             <StripeCheckoutForm

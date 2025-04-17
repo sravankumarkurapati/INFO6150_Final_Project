@@ -326,7 +326,7 @@ const AdminDashboard = () => {
           </Form>
         </Modal.Body>
       </Modal>
-      <Footer />
+     
     </div>
   );
 };
