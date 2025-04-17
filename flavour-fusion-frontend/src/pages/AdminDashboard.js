@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../axiosInstance';
 import { Modal, Button, Form, Tabs, Tab, Image } from 'react-bootstrap';
 import { FaUser, FaStore, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import Footer from '../components/Footer';
+
 
 
 const AdminDashboard = () => {

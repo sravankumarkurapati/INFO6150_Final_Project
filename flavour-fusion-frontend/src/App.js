@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/" element={role ? <Navigate to={`/${role}/dashboard`} /> : <Navigate to="/login/customer" />} />
           <Route path="/login" element={<Navigate to="/login/customer" />} />
 
-          {/* ✅ FIXED: force Login component to re-render using key */}
+          {/* ✅ FIXED: force Login component to re-render using key  */}
           <Route path="/login/:role" element={<Login key={window.location.pathname} />} />
 
           <Route path="/signup" element={<Signup />} />

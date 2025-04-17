@@ -26,7 +26,7 @@ const Navbar = ({ userType }) => {
         {/* NAV LINKS (optional) */}
         {/* <div className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto">
-            ...dashboard links based on userType...
+            ...dashboard links based on userType... 
           </ul>
         </div> */}
 
