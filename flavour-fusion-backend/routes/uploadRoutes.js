@@ -5,7 +5,7 @@ const { uploadImage } = require('../controllers/uploadController');
 
 const router = express.Router();
 
-// Multer config
+// Multer  config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/profiles/'), // ✅ matches your controller response
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)

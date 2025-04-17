@@ -14,7 +14,7 @@ const {
 
 const { verifyToken, restrictTo } = require('../middlewares/authMiddleware');
 
-// ✅ Multer config for restaurant image upload
+// ✅ Multer  config for restaurant image upload
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     const uploadPath = path.join(__dirname, '..', 'uploads');

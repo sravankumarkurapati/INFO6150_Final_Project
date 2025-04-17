@@ -2,7 +2,7 @@ const Restaurant = require('../models/Restaurant');
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 
-// Admin can get commission summary across  all restaurants
+// Admin can get commission  summary across  all restaurants
 exports.getAdminCommissions = async (req, res) => {
   try {
     const restaurants = await Restaurant.find().select('name totalCommission');
@@ -12,7 +12,7 @@ exports.getAdminCommissions = async (req, res) => {
   }
 };
 
-// Admin or restaurant owner can view commission breakdown by restaurant  ID
+// Admin or restaurant owner  can view commission breakdown by restaurant  ID
 exports.getRestaurantCommissions = async (req, res) => {
   try {
     const orders = await Order.find({ restaurant: req.params.id }).populate('commissionDetails.item');

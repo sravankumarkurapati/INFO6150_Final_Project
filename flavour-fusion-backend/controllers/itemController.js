@@ -1,6 +1,6 @@
 const Item = require('../models/Item');
 
-// @desc Restaurant adds an item with image
+// @desc Restaurant  adds an item with image
 exports.createItem = async (req, res) => {
   try {
     const { name, price, category, restaurant, availability, quantity } = req.body;
