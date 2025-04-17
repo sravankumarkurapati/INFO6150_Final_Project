@@ -1,6 +1,3 @@
-
-// Cleaned & Valid JSX with correct structure, delivery person display, and status handling
-
 import React, { useEffect, useState } from 'react';
 import axios from '../axiosInstance';
 import { Form, Button, Table, Modal, Card, Tabs, Tab } from 'react-bootstrap';
@@ -126,18 +123,6 @@ const RestaurantDashboard = () => {
     }
   };
 
-  const headerStyle = {
-    background: 'linear-gradient(to right, #ff9966, #ff5e62)',
-    color: '#fff',
-    textAlign: 'center',
-    padding: '12px 0',
-    borderRadius: '12px',
-    marginBottom: '20px',
-    fontSize: '28px',
-    fontWeight: 'bold'
-  };
-
-  
   const handleItemSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.price || !form.quantity || !form.image) {
@@ -162,94 +147,96 @@ const RestaurantDashboard = () => {
     fetchItems();
   };
 
-
   const orderTable = (title, data, showActions = false, showDeliveryPerson = false) => (
     <div className="mt-4">
       <h5 className="bg-warning text-white p-2 rounded">{title}</h5>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Items</th>
-            {showDeliveryPerson ? <th>Delivery Person</th> : <th>Delivery</th>}
-            {showActions && <th>Action</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(order => (
-            <tr key={order._id} className={
-  order.status === 'pending' ? 'table-warning' :
-  order.status === 'preparing' ? 'table-info' :
-  order.status === 'delivering' ? 'table-primary' :
-  order.status === 'completed' ? 'table-success' :
-  ''
-}>
-              <td>{order._id}</td>
-              <td>{order.customer?.fullName || 'N/A'}</td>
-              <td>{order.status}</td>
-              <td>{order.totalAmount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-              <td>
-  {title === 'New Orders' ? (
-    <span className="text-muted">Hidden</span>
-  ) : (
-    <ul className="mb-0 ps-3">
-      {order.items.map((i, idx) => (
-        <li key={idx}>
-          {i.item?.name || 'Unnamed'} × {i.quantity}
-        </li>
-      ))}
-    </ul>
-  )}
-</td>
-              <td>
-                {(order.status === 'preparing' || order.status === 'delivering') ? (
-                  <Form.Select
-                    value={order.deliveryPerson?._id || ''}
-                    onChange={(e) => assignDelivery(order._id, e.target.value)}
-                    disabled={order.status === 'delivering'}
-                  >
-                    <option value="">Assign Delivery Person</option>
-                    {deliveryPeople.map(dp => (
-                      <option key={dp._id} value={dp._id}>{dp.fullName}</option>
-                    ))}
-                  </Form.Select>
-                ) : (
-                  <span className="text-muted">Not Applicable</span>
-                )}
-              </td>
-              {showDeliveryPerson && <td>{order.deliveryPerson?.fullName || 'N/A'}</td>}
-              {showActions && (
-                <td>
-                  {order.status === 'pending' && <Button size="sm" onClick={() => updateOrderStatus(order._id, 'preparing')}>Prepare</Button>}
-                  {order.status === 'preparing' && <Button size="sm" onClick={() => updateOrderStatus(order._id, 'delivering')}>Deliver</Button>}
-                  {order.status === 'delivering' && <span className="text-muted">In Progress</span>}
-                </td>
-              )}
+      <div className="table-responsive">
+        <Table striped bordered hover className="align-middle">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Items</th>
+              <th>{showDeliveryPerson ? 'Delivery Person' : 'Delivery'}</th>
+              {showActions && <th>Action</th>}
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {data.map(order => (
+              <tr key={order._id} className={
+                order.status === 'pending' ? 'table-warning' :
+                order.status === 'preparing' ? 'table-info' :
+                order.status === 'delivering' ? 'table-primary' :
+                order.status === 'completed' ? 'table-success' : ''
+              }>
+                <td>{order._id}</td>
+                <td>{order.customer?.fullName || 'N/A'}</td>
+                <td>{order.status}</td>
+                <td>{order.totalAmount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                <td>
+                  {title === 'New Orders' ? (
+                    <span className="text-muted">Hidden</span>
+                  ) : (
+                    <ul className="mb-0 ps-3">
+                      {order.items.map((i, idx) => (
+                        <li key={idx}>{i.item?.name || 'Unnamed'} × {i.quantity}</li>
+                      ))}
+                    </ul>
+                  )}
+                </td>
+                {showDeliveryPerson ? (
+                  <td>{order.deliveryPerson?.fullName || 'Not Assigned'}</td>
+                ) : (
+                  <td>
+                    {(order.status === 'preparing' || order.status === 'delivering') ? (
+                      <Form.Select
+                        value={order.deliveryPerson?._id || ''}
+                        onChange={(e) => assignDelivery(order._id, e.target.value)}
+                        disabled={order.status === 'delivering'}
+                      >
+                        <option value="">Assign Delivery Person</option>
+                        {deliveryPeople.map(dp => (
+                          <option key={dp._id} value={dp._id}>{dp.fullName}</option>
+                        ))}
+                      </Form.Select>
+                    ) : (
+                      <span className="text-muted">Not Applicable</span>
+                    )}
+                  </td>
+                )}
+                {showActions && (
+                  <td>
+                    {order.status === 'pending' && <Button size="sm" onClick={() => updateOrderStatus(order._id, 'preparing')}>Prepare</Button>}
+                    {order.status === 'preparing' && <Button size="sm" onClick={() => updateOrderStatus(order._id, 'delivering')}>Deliver</Button>}
+                    {order.status === 'delivering' && <span className="text-muted">In Progress</span>}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </div>
   );
 
   return (
     <div className="container py-4">
       <div className="d-flex align-items-center justify-content-between mb-4">
-  <h2 className="text-white py-2 px-4 rounded" style={{ background: 'linear-gradient(to right, #ff9966, #ff5e62)' }}>
-    Restaurant Dashboard
-  </h2>
-  {user?.fullName && (
-    <div className="d-flex align-items-center">
-      {user.profileImage && (
-      <img src={`${baseUrl}${user.profileImage}`} alt="Profile" width={40} height={40} className="me-2 rounded-circle" />
-    )}
-    <span className="fw-bold">{user.fullName}</span>
-    </div>
-  )}
-</div>
+        <h2 className="text-white py-2 px-4 rounded" style={{ background: 'linear-gradient(to right, #ff9966, #ff5e62)' }}>
+          Restaurant Dashboard
+        </h2>
+        {user?.fullName && (
+          <div className="d-flex align-items-center">
+            {user.profileImage && (
+              <img src={`${baseUrl}${user.profileImage}`} alt="Profile" width={40} height={40} className="me-2 rounded-circle" />
+            )}
+            <span className="fw-bold">{user.fullName}</span>
+          </div>
+        )}
+      </div>
+
       <h4 className="text-center mb-4 text-muted">Welcome, {restaurantName}</h4>
 
       <Tabs activeKey={key} onSelect={setKey} className="mb-4 justify-content-center">
@@ -289,13 +276,13 @@ const RestaurantDashboard = () => {
               {items.map(item => (
                 <tr key={item._id}>
                   <td>
-      {item.image ? (
-        <img src={`${baseUrl}${item.image}`} alt="Item" width="50" height="40" style={{ objectFit: "cover", borderRadius: "8px" }} />
-      ) : (
-        <span className="text-muted small">No image</span>
-      )}
-    </td>
-<td>{item.name}</td>
+                    {item.image ? (
+                      <img src={`${baseUrl}${item.image}`} alt="Item" width="50" height="40" style={{ objectFit: "cover", borderRadius: "8px" }} />
+                    ) : (
+                      <span className="text-muted small">No image</span>
+                    )}
+                  </td>
+                  <td>{item.name}</td>
                   <td>{item.price}</td>
                   <td>{item.quantity}</td>
                   <td className="d-flex">
