@@ -47,7 +47,7 @@ const Login = () => {
       className="login-bg d-flex justify-content-center align-items-center"
       style={{
         minHeight: '100vh',
-        backgroundImage: 'url("/login_background.jpg")', // ✅ Put image inside /public
+        backgroundImage: 'url("/")', // ✅ Put image inside /public
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
