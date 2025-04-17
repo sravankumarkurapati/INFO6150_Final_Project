@@ -14,7 +14,7 @@ const {
 
 const { verifyToken, restrictTo, authorizeRoles } = require('../middlewares/authMiddleware');
 
-// ✅ Multer setup for image upload
+// ✅ Multer setup for  image upload
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     const uploadPath = path.join(__dirname, '..', 'uploads');
@@ -34,7 +34,7 @@ router.post('/login', loginUser);
 
 // ✅ Admin-only routes
 router.get('/', verifyToken, restrictTo('admin', 'restaurant'), getAllUsers);
-router.post('/',  upload.single('image'), createUser);
+router.post('/', upload.single('image'), createUser);
 router.put('/:id', verifyToken, restrictTo('admin'), upload.single('image'), updateUser);
 router.delete('/:id', verifyToken, restrictTo('admin'), deleteUser);
 

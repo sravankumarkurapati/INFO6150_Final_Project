@@ -3,7 +3,7 @@ const Order = require('../models/Order');
 const Item = require('../models/Item');
 const User = require('../models/User');
 
-// Customer places an order
+// Customer  places an order
 exports.createOrder = async (req, res) => {
   try {
     const { restaurant, items, totalAmount } = req.body;
