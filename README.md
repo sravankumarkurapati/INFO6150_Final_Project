@@ -1,4 +1,4 @@
-# INFO6150_Final_Project
+# Flavor Fusion - Food Ordering Platform
 This repository has been created for the final project of INFO 6150
 ## 🚀 Technologies Used
 
